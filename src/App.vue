@@ -9,9 +9,15 @@
         <TodoList :todos="filteredTodos" @delete-todo="deleteTodo" @toggle-todo="toggleTodo" />
         <br>
         <nav class="nav">
-          <ul class="pagination">
-            <li class="page-item"><a href="#" class="page-link">🧲</a></li>
-          </ul>
+            <ul class="pagination">
+                <li v-if="currentPage !== 1" class="page-item"><a href="#" @click="getTodos(currentPage-1)" class="page-link">-</a></li>
+
+               <li v-for="page in numberOfPages" :key="page" class="page-item" :class="currentPage===page ? 'active' : ''">
+                    <a href="#" @click="getTodos(page)" class="page-link" :class="currentPage===page ? 'active' : ''">{{ page }}</a>
+                </li> 
+
+                <li v-if="numberOfPages !== currentPage" class="page-item"><a href="#" @click="getTodos(currentPage+1)" class="page-link">+</a></li>
+            </ul>
         </nav>
     </div>
 </template>
@@ -21,8 +27,6 @@ import { computed, ref } from 'vue';
 import TodoSimpleForm from './components/TodoSimpleForm.vue';
 import TodoList from './components/TodoList.vue';
 import axios from 'axios';
-import '@fortawesome/fontawesome-free/js/all.js'
-
 
 export default {
     components: {
@@ -34,22 +38,26 @@ export default {
         const todos = ref([ ]);
         const serchText= ref('');
         const error=ref('');
-        
+        const limit=5;
+        const numberOfTodos =ref(0);
+        const currentPage=ref(1);
+        const numberOfPages=computed(() =>{
+            return Math.ceil(numberOfTodos.value/limit)
+        });
 
-       
-
-        const getTodos = async () =>{
-          try{
-             const res=await axios.get('http://localhost:3000/todos')
-             console.log(res.data)
-             todos.value=res.data
-          }catch(err){
-            console.error(err);
-            err.value = "찾는문장이없습니다."
-          }
+        const getTodos = async (page = currentPage.value) =>{
+            currentPage.value=page
+            try{
+                const res=await axios.get(`http://localhost:3000/todos?_page=${page}&_limit=${limit}`);
+                //console.log(res.headers)
+                numberOfTodos.value=res.headers['x-total-count'];
+                todos.value=res.data;
+            }catch (err){
+                console.log(err);
+                error.value="찾는 문장이 없습니다"
+            }
         };
-        getTodos()
-        
+        getTodos();
         const addTodo = async (todo) => {
             error.value='';
             try{
@@ -79,17 +87,18 @@ export default {
                 error.value="잘못된 입력입니다."
            });
         } */
+       
         const deleteTodo = async (index) => {
-          error.value = "찾는문장이 없음"
-          const id=todos.value[index].id;
-          try{
-             await axios.delete(`http://localhost:3000/todos/${id}`)
-             todos.value.splice(index, 1)
-          }catch(err){
-            console.log(err);
-            error.value="잘못된 입력입니다."
-          }
-            
+            error.value="";
+            const id= todos.value[index].id;
+            try{
+                await axios.delete('http://localhost:3000/todos/'+ id);
+                todos.value.splice(index, 1);
+            }catch(err){
+                console.log(err);
+                error.value="찾는 문장이 없습니다"
+            }
+           
         }
         const toggleTodo= async (index) =>{
            // console.log(index)
@@ -123,7 +132,9 @@ export default {
            toggleTodo,
            serchText,
            filteredTodos,
-           getTodos
+           getTodos,
+           numberOfPages,
+           currentPage,
         }
     }
 }
@@ -144,4 +155,8 @@ export default {
     .todoStyle{text-decoration: line-through;color: gray}
     .btnR{padding: 5px 20px; background: #e93838; color: #fff; border: none}
     .form-control{width: 100%; border: 1px solid #ddd; margin-bottom: 10px; padding: 10px 20px;}
+    .pagination{list-style-type: none; display: flex; justify-content: center;}
+    .page-item{ padding: 10px; margin: 0 3px; border: 1px solid #ddd}
+    .page-link{color: #666; text-decoration: none;}
+    .active{background: #666; color: #fff}
 </style>
