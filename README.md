@@ -1,19 +1,2 @@
-# todoapp
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+![20230221_115959](https://user-images.githubusercontent.com/123912121/220236707-68cd2559-392b-45f5-9803-03a57c70b59f.png)
