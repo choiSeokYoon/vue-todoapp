@@ -1,5 +1,5 @@
 
-## 학원에서 클론코딩한 뷰 프로젝트입니다.
+
 _HOME
 ![20230221_115925](https://user-images.githubusercontent.com/123912121/220237257-6b8ca723-1a78-4498-97b8-374c84321867.png)
 _EDIT PAGE
